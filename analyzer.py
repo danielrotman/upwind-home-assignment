@@ -6,7 +6,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# המפתח שלך (בהמשך נלמד להסתיר אותו)
 API_KEY = os.getenv("GOOGLE_API_KEY")
 GOOGLE_API_URL = f"https://safebrowsing.googleapis.com/v4/threatMatches:find?key={API_KEY}"
 
@@ -16,12 +15,12 @@ def extract_urls(text):
     return re.findall(url_pattern, text)
 
 
-# הפונקציה שפונה למודיעין של גוגל
+# הפונקציה שפונה לגוגל
 def check_urls_with_google(urls):
     if not urls:
         return False
 
-    # בונים את המבנה שגוגל מצפה לקבל
+    #   המבנה שגוגל מצפה לקבל
     payload = {
         "client": {
             "clientId": "phishing-detector",
@@ -40,7 +39,6 @@ def check_urls_with_google(urls):
         response.raise_for_status()
         data = response.json()
 
-        # שורת הדיבאג החדשה שלך:
         print(f"[*] Google Response: {data}")
 
         if "matches" in data:
@@ -54,7 +52,7 @@ def check_urls_with_google(urls):
 
 
 def get_domain_age_info(domain_name):
-    """בודק את גיל הדומיין באמצעות פרוטוקול RDAP המודרני"""
+    """בודק את גיל הדומיין באמצעות פרוטוקול RDAP """
     # אם קיבלת אימייל שלם במקום רק דומיין, ננקה אותו
     if "@" in domain_name:
         domain_name = domain_name.split('@')[-1]
@@ -63,7 +61,7 @@ def get_domain_age_info(domain_name):
     rdap_url = f"https://rdap.org/domain/{domain_name}"
 
     try:
-        # פנייה לשרת ה-RDAP (עובד מעל HTTP, ולכן פחות נחסם ב-Render)
+        # פנייה לשרת ה-RDAP
         response = requests.get(rdap_url, timeout=10)
         if response.status_code == 200:
             data = response.json()
@@ -77,7 +75,6 @@ def get_domain_age_info(domain_name):
                     reg_date = datetime.strptime(reg_date_str[:10], '%Y-%m-%d')
                     age_days = (datetime.now() - reg_date).days
 
-                    # הלוגיקה המחמירה שלך
                     if age_days <= 4:
                         return 90, f"Critical: Domain is only {age_days} days old"
                     elif age_days <= 30:
@@ -96,11 +93,11 @@ def get_domain_age_info(domain_name):
 
 def analyze_email_content(sender, subject, body):
     score = 0
-    reasons = []  # <--- הוספנו את רשימת הסיבות!
+    reasons = []
     subject_lower = subject.lower()
     body_lower = body.lower()
 
-    # --- שכבת המודיעין: בדיקה מול גוגל ---
+    # --- בדיקה מול גוגל ---
     found_urls = extract_urls(body_lower)
     if found_urls:
         print(f"[*] Found URLs to analyze: {found_urls}")
@@ -114,7 +111,7 @@ def analyze_email_content(sender, subject, body):
         # מחלצים את הדומיין מכתובת המייל
         domain = sender.split("@")[-1].strip(">").strip()
 
-        # --- מילת הקסם למצגת ---
+        # --- בדיקת דמו עבור דומיין צעיר ---
         if "demo" in subject_lower or "דמו" in subject_lower:
             age_risk = 90
             age_desc = "Critical: Domain is only 0 days old (Simulated)"
@@ -131,7 +128,7 @@ def analyze_email_content(sender, subject, body):
         print(f"[-] Domain analysis failed: {e}")
         pass
 
-    # --- השכבה ההיוריסטית: מילים וסיומות (מורחב ומוכן) ---
+    # --- השכבה ההיוריסטית: מילים וסיומות  ---
 
     # 1. סיומות דומיין בעייתיות
     shady_extensions = [".xyz", ".top", ".ru", ".cn", ".biz", ".info"]

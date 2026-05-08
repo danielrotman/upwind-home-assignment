@@ -48,7 +48,6 @@ def log_scan(sender, subject, score, verdict, reasons):
     conn = sqlite3.connect('security.db')
     cursor = conn.cursor()
 
-    # יצירת חותמת זמן מקצועית
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     # הפיכת רשימת הסיבות לטקסט מופרד בפסיקים

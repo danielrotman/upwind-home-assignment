@@ -30,7 +30,7 @@ async def analyze_email(email: EmailData):
         result = analyze_email_content(email.sender, email.subject, email.body)
         score, verdict, reasons = result['score'], result['verdict'], result['reasons']
 
-    # 3. למידה אוטומטית ושמירת לוג
+    #  3. למידה אוטומטית ושמירת לוג- לצורך ההדגמה הרשימה השחורה כרגע מבוטלת
     #if score >= 80:
     #   add_to_blacklist(email.sender)
 
