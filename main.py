@@ -1,0 +1,38 @@
+from fastapi import FastAPI
+from pydantic import BaseModel
+from database import init_db, is_in_blacklist, log_scan, add_to_blacklist
+from analyzer import analyze_email_content
+
+app = FastAPI(title="Upwind Security Scorer")
+
+init_db()
+
+# הגדרת מבנה הנתונים שאנחנו מצפים לקבל מהג'ימייל
+class EmailData(BaseModel):
+    sender: str
+    subject: str
+    body: str
+
+
+@app.get("/")
+async def root():
+    return {"message": "The Upwind Backend is ALIVE!"}
+
+
+@app.post("/analyze")
+async def analyze_email(email: EmailData):
+    # 1. בדיקת מוניטין (Database)
+    if is_in_blacklist(email.sender):
+        score, verdict = 100, "High Risk - Blacklisted"
+    else:
+        # 2. ניתוח תוכן (Analyzer)
+        result = analyze_email_content(email.sender, email.subject, email.body)
+        score, verdict, reasons = result['score'], result['verdict'], result['reasons']
+
+    # 3. למידה אוטומטית ושמירת לוג
+    #if score >= 80:
+    #   add_to_blacklist(email.sender)
+
+    log_scan(email.sender, email.subject, score, verdict)
+
+    return {"score": score, "verdict": verdict}
