@@ -23,7 +23,8 @@ async def root():
 async def analyze_email(email: EmailData):
     # 1. בדיקת מוניטין (Database)
     if is_in_blacklist(email.sender):
-        score, verdict = 100, "High Risk - Blacklisted"
+        score, verdict,reasons = 100, "High Risk",["Sender is in your manual blacklist"]
+
     else:
         # 2. ניתוח תוכן (Analyzer)
         result = analyze_email_content(email.sender, email.subject, email.body)
@@ -33,6 +34,6 @@ async def analyze_email(email: EmailData):
     #if score >= 80:
     #   add_to_blacklist(email.sender)
 
-    log_scan(email.sender, email.subject, score, verdict)
+    log_scan(email.sender, email.subject, score, verdict, reasons)
 
-    return {"score": score, "verdict": verdict}
+    return {"score": score, "verdict": verdict,"reasons": reasons}
