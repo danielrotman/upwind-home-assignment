@@ -34,7 +34,7 @@ To demonstrate the system's "High Risk" UI and response logic:
 
 ---
 
-### 💡 Engineering Note: RDAP vs. WHOIS
+### 💡 Engineering Note: RDAP vs. WHOIS and BlackList
 * **RDAP over WHOIS:** I migrated from traditional WHOIS to RDAP for domain checks. RDAP returns clean JSON and is much more stable on cloud platforms (like Render), avoiding the rate limits and connection drops common with legacy WHOIS servers.
 * **Demo Environment (Blacklist):** The local SQLite blacklist is kept empty for this demo. Normally, if a sender is blacklisted, the scan stops immediately and returns a 100 score. Keeping it empty allows you to see the rest of the analysis engine (RDAP, Google APIs, Heuristics) at work.
 
