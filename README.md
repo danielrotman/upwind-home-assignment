@@ -26,6 +26,14 @@ Every evaluated email is automatically logged into the SQLite database. The syst
 
 ---
 
+## 🏗️ System Architecture
+
+**Backend (FastAPI on Render):** The central orchestrator of the system. It handles secure HTTP requests from Gmail, manages asynchronous API calls (RDAP, Safe Browsing), interacts with the SQLite database, and computes the final threat score.
+
+**Frontend (Gmail Add-on):** Built with Google Apps Script, the frontend integrates directly into the Gmail UI. It extracts email metadata, communicates with the backend, and renders a dynamic, color-coded security card based on the results.
+
+---
+
 ## 🧪 Testing the System (Demo Mode)
 To demonstrate the system's "High Risk" UI and response logic:
 1. Send an email to the connected Gmail account with the word **"DEMO"** in the subject line.
@@ -34,7 +42,7 @@ To demonstrate the system's "High Risk" UI and response logic:
 
 ---
 
-### 💡 Engineering Note: RDAP vs. WHOIS and BlackList
+## 💡 Engineering Note: RDAP vs. WHOIS and BlackList
 * **RDAP over WHOIS:** I migrated from traditional WHOIS to RDAP for domain checks. RDAP returns clean JSON and is much more stable on cloud platforms (like Render), avoiding the rate limits and connection drops common with legacy WHOIS servers.
 * **Demo Environment (Blacklist):** The local SQLite blacklist is kept empty for this demo. Normally, if a sender is blacklisted, the scan stops immediately and returns a 100 score. Keeping it empty allows you to see the rest of the analysis engine (RDAP, Google APIs, Heuristics) at work.
 
