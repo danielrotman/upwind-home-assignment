@@ -1,7 +1,6 @@
 import os
 import re
 import requests
-import whois
 from datetime import datetime
 from dotenv import load_dotenv
 
@@ -66,7 +65,6 @@ def get_domain_age_info(domain_name):
     try:
         # פנייה לשרת ה-RDAP (עובד מעל HTTP, ולכן פחות נחסם ב-Render)
         response = requests.get(rdap_url, timeout=10)
-
         if response.status_code == 200:
             data = response.json()
             events = data.get('events', [])
@@ -93,7 +91,7 @@ def get_domain_age_info(domain_name):
     except Exception as e:
         # אם יש שגיאת תקשורת או שהדומיין לא נמצא
         print(f"RDAP Error for {domain_name}: {e}")
-        return 60, "Could not verify domain age (Potentially new or private)"
+        return 30, "Could not verify domain age (Potentially new or private)"
 
 
 def analyze_email_content(sender, subject, body):
