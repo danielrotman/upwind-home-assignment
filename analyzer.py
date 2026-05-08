@@ -55,31 +55,45 @@ def check_urls_with_google(urls):
 
 
 def get_domain_age_info(domain_name):
-    """בודק את גיל הדומיין ומחזיר ציון סיכון"""
+    """בודק את גיל הדומיין באמצעות פרוטוקול RDAP המודרני"""
+    # אם קיבלת אימייל שלם במקום רק דומיין, ננקה אותו
+    if "@" in domain_name:
+        domain_name = domain_name.split('@')[-1]
+
+    domain_name = domain_name.lower().strip()
+    rdap_url = f"https://rdap.org/domain/{domain_name}"
+
     try:
-        # שליחת שאילתה לשרתי ה-WHOIS
-        domain_info = whois.whois(domain_name)
-        creation_date = domain_info.creation_date
+        # פנייה לשרת ה-RDAP (עובד מעל HTTP, ולכן פחות נחסם ב-Render)
+        response = requests.get(rdap_url, timeout=10)
 
-        if isinstance(creation_date, list):
-            creation_date = creation_date[0]
+        if response.status_code == 200:
+            data = response.json()
+            events = data.get('events', [])
 
-        if not creation_date:
-            return 50, "Unknown Age"
+            for event in events:
+                # אנחנו מחפשים את אירוע הרישום (registration)
+                if event.get('action') == 'registration':
+                    reg_date_str = event.get('eventDate')
+                    # המרה של פורמט התאריך (לוקחים רק את ה-10 תווים הראשונים YYYY-MM-DD)
+                    reg_date = datetime.strptime(reg_date_str[:10], '%Y-%m-%d')
+                    age_days = (datetime.now() - reg_date).days
 
-        age_days = (datetime.now() - creation_date).days
+                    # הלוגיקה המחמירה שלך
+                    if age_days <= 4:
+                        return 90, f"Critical: Domain is only {age_days} days old"
+                    elif age_days <= 30:
+                        return 50, f"Suspicious: Domain is {age_days} days old"
 
-        # לוגיקה לפי הנתונים שלך: מתחת ל-4 ימים זה קריטי
-        if age_days <= 4:
-            return 90, f"Critical: Domain is only {age_days} days old"
-        elif age_days <= 30:
-            return 50, f"Suspicious: Domain is {age_days} days old"
+                    return 0, f"Domain age: {age_days} days"
 
-        return 0, f"Domain age: {age_days} days"
+        # אם השרת החזיר תשובה אבל אין בה תאריך רישום ברור
+        return 20, "Domain exists but age not confirmed"
 
-    except Exception:
-        # אם יש שגיאה (דומיין ממש חדש או בעיית תקשורת)
-        return 60, "Could not verify domain age (Potentially new)"
+    except Exception as e:
+        # אם יש שגיאת תקשורת או שהדומיין לא נמצא
+        print(f"RDAP Error for {domain_name}: {e}")
+        return 60, "Could not verify domain age (Potentially new or private)"
 
 
 def analyze_email_content(sender, subject, body):
