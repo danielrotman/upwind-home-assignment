@@ -21,6 +21,9 @@ Analyzes the sender's domain age to detect freshly registered "look-alike" domai
 ### 4. Heuristic Analysis
 Scans the subject and body for aggressive social engineering keywords (e.g., "Urgent", "Action Required") and suspicious call-to-action phrases.
 
+### 5. Scan Data & Audit Logging
+Every evaluated email is automatically logged into the SQLite database. The system records the sender's details, the final threat score, the verdict, and the specific risk factors identified, providing a comprehensive audit trail for security review.
+
 ---
 
 ## 🧪 Testing the System (Demo Mode)
@@ -48,8 +51,8 @@ The backend is built with FastAPI and uses a local SQLite database for the black
 
 1. **Clone the repository:**
    ```bash
-   git clone [https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git](https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git)
-   cd YOUR_REPO_NAME
+   git clone [https://github.com/danielrotman/upwind-home-assignment.git](https://github.com/danielrotman/upwind-home-assignment.git)
+   cd upwind-home-assignment
    ```
 
 2. **Install dependencies:**
@@ -74,7 +77,25 @@ The backend is built with FastAPI and uses a local SQLite database for the black
 The frontend is a Google Apps Script that connects directly to the Gmail UI.
 
 1. Go to [Google Apps Script](https://script.google.com/) and create a new project.
-2. Clear the default code and paste the contents of the provided `app_script` code (e.g., `Code.gs`).
-3. **Important:** Locate the API endpoint variable in the script and update it to point to your live Render backend URL (or your `ngrok` URL if testing locally).
+2. Clear the default code and paste the contents of the `apps_script` file from this repository.
+3. **Important:** Locate the API endpoint variable in the script and update it to point to your live Render backend URL.
 4. Click **Deploy** -> **Test Deployments**.
 5. Select **Application: Gmail** and click **Install**. The Add-on will now appear in your Gmail sidebar when you open an email.
+
+
+## 📸 Screenshots & UI
+
+Here are a few examples of the Add-on in action, displaying different threat levels based on the analysis:
+
+**🔴 High Risk (Simulated Demo)** - *90/100 Threat Score*
+
+[<img width="1271" height="506" alt="WhatsApp Image 2026-05-08 at 20 45 00" src="https://github.com/user-attachments/assets/4b8a0a98-21fd-4262-a6f7-2d7b0516392a" />]
+
+**🟡 Suspicious Email** - *60/100 Threat Score*
+
+[<img width="995" height="493" alt="image" src="https://github.com/user-attachments/assets/e79f29a8-238e-4944-afaa-cd0a192f7624" />
+]
+
+**🟢 Safe Email** - *20/100 Threat Score*
+
+[<img width="995" height="455" alt="image" src="https://github.com/user-attachments/assets/8b8d5d60-9258-4e14-b357-8e00d609f6b6" />]
